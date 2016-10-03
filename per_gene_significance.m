@@ -5,9 +5,10 @@
 % 2 = discretize matrix data with ceil()
 discrete_flag = 1;
 
+% 0 = just generate geneScores and ratios data structures
 % 1 = calculate ratio for all genes (saved in geneScores struct array); output top 1% to per_gene_significance.txt tab-delimited list
 % 2 = calculate ratio for all genes (saved in geneScores struct array); for each of significant groups, map the member genes ratio on the distribution so we can see where the genes that make up these groups cluster
-mode_flag = 2;
+mode_flag = 0;
 
 signif_groups = { ...
 	{ 'REACTOME_SOS_MEDIATED_SIGNALLING', 'Cdk1', 'Mapk1', 'Mapk3', 'Grb2', 'Hras', 'Raf1', 'Sos1', 'Map2k1', 'Nras', 'Irs2', 'Kras', 'Irs1', 'Ywhab', 'Map2k2' }, ...
@@ -90,9 +91,7 @@ if ~exist('geneScores','var') || ~exist('ratios','var')
 				if mod(i, 1000) == 0
 					fprintf('Iteration %d...\n', i);
 				end
-				if mean_be > 0
-					ratios = [ratios ratio];
-				end
+				ratios = [ratios ratio];
 				numerators = [numerators mean_be];
 				denominators = [denominators mean_ae];
 			else
