@@ -1,0 +1,3 @@
+msigdb.v5.1.symbols.gmt filter=lfs diff=lfs merge=lfs -text
+*.mat filter=lfs diff=lfs merge=lfs -text
+*.db filter=lfs diff=lfs merge=lfs -text
