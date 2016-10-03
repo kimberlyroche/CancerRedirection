@@ -1,6 +1,10 @@
 % for every MGI gene with probesets present in the matrix, calculates the absolute value of the (average difference between E1,2,3 and B1,2,3) / (average difference between E1,2,3 and A1,2,3)
 %	high ratios should indicate individual genes that are very divergent in E-B and very similar in A-E
 
+% 1 = do NOT discretize data
+% 2 = discretize matrix data with ceil()
+discrete_flag = 1;
+
 % 1 = calculate ratio for all genes (saved in geneScores struct array); output top 1% to per_gene_significance.txt tab-delimited list
 % 2 = calculate ratio for all genes (saved in geneScores struct array); for each of significant groups, map the member genes ratio on the distribution so we can see where the genes that make up these groups cluster
 mode_flag = 2;
@@ -62,6 +66,9 @@ if ~exist('geneScores','var') || ~exist('ratios','var')
 				if isKey(mapObj, pids{j})
 					found = found + 1;
 					current_row = mapObj(pids{j});
+					if(discrete_flag == 2)
+						current_row = ceil(current_row);
+					end
 					delta_ae = [delta_ae (current_row(13) - current_row(1))];
 					delta_ae = [delta_ae (current_row(14) - current_row(2))];
 					delta_ae = [delta_ae (current_row(15) - current_row(3))];
@@ -83,7 +90,9 @@ if ~exist('geneScores','var') || ~exist('ratios','var')
 				if mod(i, 1000) == 0
 					fprintf('Iteration %d...\n', i);
 				end
-				ratios = [ratios ratio];
+				if mean_be > 0
+					ratios = [ratios ratio];
+				end
 				numerators = [numerators mean_be];
 				denominators = [denominators mean_ae];
 			else
@@ -209,7 +218,7 @@ if mode_flag == 1
 
 	fprintf('Genes UP in E from B = %d\n', genes_EB_up);
 	fprintf('Genes DN in E from B = %d\n', genes_EB_dn);
-else
+elseif mode_flag == 2
 	for i=1:siggroup_sz
 		clf;
 		hold on;
