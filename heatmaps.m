@@ -1,15 +1,9 @@
-% function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separate_by, resolution_inches)
+function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separate_by, resolution_inches)
 
-	filepath = '';
-	% filename = 'LCM_Heatmap_Example.tab';
-	% filename = 'ABCDEF-rma-normalized.txt';
-	subset_sz_rows = 100;
-	subset_sz_cols = 0;
-	separate_by = 0;
-	resolution_inches = 10;
+	% output will be saved to dir 'output' in same directory
 
 	% filepath
-	%		input file path
+	%		input file path or '' if same directory as input file
 	% filename
 	%		input file name
 	% subset_sz_rows
@@ -19,6 +13,7 @@
 	%		first n columns to restrict the heatmap/clustergram function to
 	%		0 = use all columns
 	% separate_by
+	%		visually separate columns on the basis of a shared column label prefix
 	%		percentage of total heatmap width to make the (null) separators between groups (if > 0)
 	%		e.g. a stripe will be added between the 'OV_unc' and 'THCA_unc' boundary
 	% 			OV_unc.edu.fc1f34ba.12e1.46d8.85ef.15b9486b37c2.1518624.rsem.isoforms.normalized_results
@@ -34,27 +29,6 @@
 		mkdir('output');
 	end
 
-	% SA_PROGRAMMED_CELL_DEATH_EXTENDED
-	genes_new = {'Bok','Bik','Sp100','Card11','Dnm1l','Bcl2l14','Bmf','Bcl2l10','Hrk'};
-	genes_orig = {'Bcl2','Bcl2l1','Bcl2l11','Bcl10','Bid','Bax','Casp9','Apaf1','Bak1','Bad','Casp8ap2'};
-
-	if(~exist('groupMap','var'))
-		load(groupMap);
-	end
-	k = keys(groupMap);
-
-	built_data = [];
-	for i=1:numel(genes_orig)
-		fprintf('%s\n', genes_orig{i});
-		for j=1:numel(k)
-			fprintf('%s\n', groupMap(k{j}).label);
-			% if(strcmp(genes_orig{i},groupMap(k{j}).label) == true)
-			% 	fprintf('match\n');
-			% end
-		end
-	end
-
-%{
 	cols = 0;
 	rows = 0;
 
@@ -111,19 +85,15 @@
 		end
 	end
 	fclose(fid);
-%}
 
-
-%{
 	fprintf('Finished reading %d x %d matrix\n', rows, cols);
 
 	% --------------------------------------------
 	% ------------ LOG TRANSFORM DATA ------------
 	% --------------------------------------------
 	fprintf('Drawing heatmap...\n');
-	% data_adjusted = data + 0.00001;
-	% data_log = log2(data_adjusted);
-	data_log = data;
+	data_adjusted = data + 0.00001;
+	data_log = log2(data_adjusted);
 
 	% -----------------------------------------
 	% ------------ ADD SEPARATORS -------------
@@ -187,10 +157,10 @@
 	% ---------------------------------------------
 	% ------------ HEATMAP AND OUTPUT -------------
 	% ---------------------------------------------
-	% cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 1);
-	cobj = clustergram(subset_test_data, 'Cluster', 3, 'Standardize', 1);
+	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 1);
 	set(cobj, 'ColumnLabels', subset_test_col_labels);
 	set(cobj, 'RowLabels', subset_test_row_labels);
+
 	rows_rendered = get(cobj, 'RowLabels');
 	columns_rendered = get(cobj, 'ColumnLabels');
 	fid_out = fopen(fullfile(filepath,'output',['heatmap_',filename,'.txt']),'w');
@@ -209,11 +179,10 @@
 	tobj = addTitle(cobj, filename, 'interpreter', 'none', 'FontSize', resolution_inches*1.5);
 	plot(cobj);
 
-	h = colorbar();
-	pos = get(h,'position');
-	pos(2) = 0.25;	% 25% from bottom of box, not 100%, as default
-	pos(4) = 0.25;	% half height of box, not 100%, as default
-	set(h, 'position', pos);
+	% title(filename);
+
+	% figureHandle = gcf;
+	% set(findall(figureHandle,'type','text'), 'FontSize', 5);
 
 	fig = gcf;
 	row_append_str = '';
@@ -224,15 +193,7 @@
 	if subset_sz_cols > 0
 		col_append_str = ['_cols',num2str(subset_sz_cols)];
 	end
-	fig.PaperUnits = 'inches';
-	fig.PaperPosition = [0 0 resolution resolution];
-	fig.PaperPositionMode = 'manual';
-	print(fullfile(filepath,'output',['heatmap_',filename,row_append_str,col_append_str,'.png']),'-dpng','-r600');
+	set(fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 resolution_inches resolution_inches]);
+	print(fullfile(filepath,'output',['heatmap_',filename,row_append_str,col_append_str,'.png']),'-dpng','-r200');
 
-
-
-%}
-
-
-
-% end
+end
