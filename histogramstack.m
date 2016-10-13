@@ -10,6 +10,7 @@ function histogramstack(input_filename, transform)
 	first_row = fgetl(fileID);
 	fclose(fileID);
 	headers = strsplit(first_row,'\t');
+	headers = headers(2:numel(headers));
 
 	[pathstr, name, ext] = fileparts(input_filename);
 	fileID = fopen(fullfile(pathstr,'output',[name,'_stack_data.txt']),'w');
@@ -17,7 +18,7 @@ function histogramstack(input_filename, transform)
 
 	figure('Visible','on');
 
-	num_sets = size(headers,2) - 1;
+	num_sets = size(headers,2);
 	num_rows = 0;
 
 	% http://www.mathworks.com/matlabcentral/answers/81137-pre-determining-the-number-of-lines-in-a-text-file
