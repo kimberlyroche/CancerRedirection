@@ -175,13 +175,18 @@ function histogramstack(input_filename, transform)
 	colors = colors * 1.5;
 	colors = colors / 255;
 	i = cols;
+	random_colormap = hsv(num_sets);
 	while i > 0
 		use_index = sort_indices(i);
 		x_offset = distances(i) * 10;
 		fprintf('%d\t%f\n', use_index, x_offset);
 		[N,edges] = histcounts(M(:,use_index),bins);
 		j = 1;
-		color = colors(use_index,:);
+		% if num_sets == 18 && num_rows = 35556
+		% 	color = colors(use_index,:);
+		% else
+			color = random_colormap(randi(num_sets), :);
+		% end
 		while j <= bins
 			if j > 1 || N(j) < N(j+1)*2
 				% we can get away with only drawing three faces of the box given the angle we're viewing it from
