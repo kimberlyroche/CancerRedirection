@@ -84,7 +84,8 @@ if method == 1
 	ab_col = 1;
 	ae_col = 4;
 	be_col = 7;
-
+	fprintf('Collecting significant gene information...\n');
+	
 	% significant_probesets = {};
 	% alpha = 0.01;
 	% k = keys(DEG_map);
@@ -99,8 +100,23 @@ if method == 1
 	% 	end
 	% end
 
+	fid = fopen('sig_genes.txt','w');
 	for i=1:numel(significant_probesets)
-		
+		current_row = DEG_map(significant_probesets{i});
+		gene_name = '';
+		res = probeset2gene(db_obj, k{i});
+		if ~isempty(res)
+			gene_name = res(1).gene;
+		end
+		fprintf(fid, 'A-B %.4f\tE-B %.4f\tA-E %.4f\t%s\t%s\n', ...
+			current_row(ab_col), ...
+			current_row(be_col), ...
+			current_row(ae_col), ...
+			significant_probesets{i}, ...
+			gene_name ...
+		);
+	end
+	fclose(fid);
 
 %{
 	readM();

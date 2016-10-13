@@ -13,7 +13,7 @@ function histogramstack(input_filename, transform)
 	headers = headers(2:numel(headers));
 
 	[pathstr, name, ext] = fileparts(input_filename);
-	fileID = fopen(fullfile(pathstr,'output',[name,'_stack_data.txt']),'w');
+	fileID = fopen(fullfile(pathstr,[name,'_stack_data.txt']),'w');
 	fprintf(fileID,'Output of: %s\n\n',[name,ext]);
 
 	figure('Visible','on');
@@ -220,7 +220,7 @@ function histogramstack(input_filename, transform)
 	fig.PaperUnits = 'inches';
 	fig.PaperPosition = [0 0 50 25];
 	fig.PaperPositionMode = 'manual';
-	print(fullfile(pathstr,'output',[name,'_stack']),'-dpng','-r0');
+	print(fullfile(pathstr,[name,'_stack']),'-dpng','-r0');
 
 	fclose(fileID);
 end
