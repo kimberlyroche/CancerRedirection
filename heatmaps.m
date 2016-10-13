@@ -157,7 +157,21 @@ function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separa
 	% ---------------------------------------------
 	% ------------ HEATMAP AND OUTPUT -------------
 	% ---------------------------------------------
-	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 1);
+	new_min = min(min(subset_test_data));
+	new_max = max(max(subset_test_data));
+
+	% normalize
+	subset_test_data = 1 * (subset_test_data - new_min) / (new_max - new_min);
+
+	new_mu = median(reshape(subset_test_data, [size(subset_test_data,1) * size(subset_test_data,2), 1]));
+	subset_test_data = subset_test_data - new_mu;
+
+	new_min = min(min(subset_test_data))
+	new_max = max(max(subset_test_data))
+
+	drange = max(ceil(abs(new_min)), ceil(abs(new_max)))
+
+	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 0, 'DisplayRange', drange, 'Symmetric', true);
 	set(cobj, 'ColumnLabels', subset_test_col_labels);
 	set(cobj, 'RowLabels', subset_test_row_labels);
 
