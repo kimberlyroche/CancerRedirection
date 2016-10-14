@@ -1,4 +1,4 @@
-method = 1;
+method = 2;
 
 fprintf('Reading matrix into map object...\n');
 readM_map();
@@ -85,36 +85,35 @@ if method == 1
 	ae_col = 4;
 	be_col = 7;
 	fprintf('Collecting significant gene information...\n');
-	
-	% significant_probesets = {};
-	% alpha = 0.01;
-	% k = keys(DEG_map);
-	% for i=1:numel(k)
-	% 	current_row = DEG_map(k{i});
-	% 	if current_row(ab_col) < alpha && current_row(be_col) < alpha && current_row(ae_col) > alpha
-	% 		res = probeset2gene(db_obj, k{i});
-	% 		if ~isempty(res)
-	% 			fprintf('Adding %s\n', k{i});
-	% 			significant_probesets = [significant_probesets k{i}];
-	% 		end
-	% 	end
-	% end
 
-	fid = fopen('sig_genes.txt','w');
-	for i=1:numel(significant_probesets)
-		current_row = DEG_map(significant_probesets{i});
-		gene_name = '';
-		res = probeset2gene(db_obj, k{i});
-		if ~isempty(res)
-			gene_name = res(1).gene;
+	fid = fopen('output/sig_genes.txt', 'w');
+	fprintf(fid, 'A-B adj p\tE-B adj p\tA-E adj p\tprobeset ID\tgenes\n');
+	significant_probesets = {};
+	alpha = 0.01;
+	k = keys(DEG_map);
+	for i=1:numel(k)
+		current_row = DEG_map(k{i});
+		if current_row(ab_col) < alpha && current_row(be_col) < alpha && current_row(ae_col) > alpha
+			res = probeset2gene(db_obj, k{i});
+			significant_probesets = [significant_probesets k{i}];
+			fprintf(fid, '%.6f\t%.6f\t%.6f\t%s\t', ...
+				current_row(ab_col), ...
+				current_row(be_col), ...
+				current_row(ae_col), ...
+				k{i} ...
+			);
+			if ~isempty(res)
+				for j=1:numel(res)
+					if j > 1
+						fprintf(fid, ',');
+					end
+					fprintf(fid, '%s', res(j).gene);
+				end
+				fprintf(fid, '\n');
+			else
+				fprintf(fid, '---\n');
+			end
 		end
-		fprintf(fid, 'A-B %.4f\tE-B %.4f\tA-E %.4f\t%s\t%s\n', ...
-			current_row(ab_col), ...
-			current_row(be_col), ...
-			current_row(ae_col), ...
-			significant_probesets{i}, ...
-			gene_name ...
-		);
 	end
 	fclose(fid);
 
@@ -177,9 +176,9 @@ if method == 1
 else
 	% heatmaps
 	grp_no = numel(genes_orig);
-	for i=3:3
+	for i=1:grp_no
 		filename = genes_orig{i}{1};
-		fid = fopen(filename, 'w');
+		fid = fopen(['output/data_',filename,'.txt'], 'w');
 		fprintf(fid, 'probeset-gene\tA1\tA2\tA3\tE1\tE2\tE3\tB1\tB2\tB3\n');
 		for j=2:numel(genes_orig{i})
 			res = gene2probeset(db_obj, genes_orig{i}{j});
@@ -226,7 +225,7 @@ else
 			end
 		end
 		fclose(fid);
-		heatmaps('', filename, 0, 0, 0, 10);
+		heatmaps('output', filename, 0, 0, 0, 10);
 	end
 end
 

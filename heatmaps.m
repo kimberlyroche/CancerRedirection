@@ -36,7 +36,7 @@ function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separa
 	% ------------ READ THE MATRIX ------------
 	% -----------------------------------------
 	fprintf('Reading file %s...\n', filename);
-	fid = fopen(fullfile(filepath,filename),'rt');
+	fid = fopen(fullfile(filepath,['data_',filename,'.txt']),'rt');
 	while (fgets(fid) ~= -1),
 		rows = rows + 1;
 	end
@@ -157,27 +157,29 @@ function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separa
 	% ---------------------------------------------
 	% ------------ HEATMAP AND OUTPUT -------------
 	% ---------------------------------------------
+
+	% we'll do the "standardization" ourselves since we want color-coding to be uniform for matrix values
 	new_min = min(min(subset_test_data));
 	new_max = max(max(subset_test_data));
-
-	% normalize
+	% normalize the matrix (0..1)
 	subset_test_data = 1 * (subset_test_data - new_min) / (new_max - new_min);
-
-	new_mu = median(reshape(subset_test_data, [size(subset_test_data,1) * size(subset_test_data,2), 1]));
+	% adjust data so mean = 0
+	new_mu = mean(reshape(subset_test_data, [size(subset_test_data,1) * size(subset_test_data,2), 1]));
 	subset_test_data = subset_test_data - new_mu;
-
 	new_min = min(min(subset_test_data))
 	new_max = max(max(subset_test_data))
-
 	drange = max(ceil(abs(new_min)), ceil(abs(new_max)))
+	% range of data is should include bound highest and lowest values
+	% symmetric = true means "forces the color scale of the heat map to be symmetric around zero"
+	% standardize = 0 means don't allow MATLAB to standardize on rows or columns as neither would be appropriate in a small matrix
 
-	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 0, 'DisplayRange', drange, 'Symmetric', true);
+	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 0, 'DisplayRange', drange, 'Symmetric', false);
 	set(cobj, 'ColumnLabels', subset_test_col_labels);
 	set(cobj, 'RowLabels', subset_test_row_labels);
 
 	rows_rendered = get(cobj, 'RowLabels');
 	columns_rendered = get(cobj, 'ColumnLabels');
-	fid_out = fopen(fullfile(filepath,'output',['heatmap_',filename,'.txt']),'w');
+	fid_out = fopen(fullfile(filepath,['heatmap_',filename,'.txt']),'w');
 	fprintf(fid_out, 'Rows (top to bottom):\n');
 	i = limit_rows;
 	while i > 0
@@ -208,6 +210,6 @@ function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separa
 		col_append_str = ['_cols',num2str(subset_sz_cols)];
 	end
 	set(fig, 'PaperUnits', 'inches', 'PaperPosition', [0 0 resolution_inches resolution_inches]);
-	print(fullfile(filepath,'output',['heatmap_',filename,row_append_str,col_append_str,'.png']),'-dpng','-r200');
+	print(fullfile(filepath,['heatmap_',filename,row_append_str,col_append_str,'.png']),'-dpng','-r200');
 
 end
