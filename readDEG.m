@@ -3,11 +3,13 @@
 %		AB	AC	AD	AE	AF	BC	BE	BF	EF	CE	DF	BD	CD	CF	DE
 
 if ~exist('DEG','var')
+	fprintf('Reading DEG matrix...\n');
 	DEG = dlmread('MouseArrayDEGAnalysis_AllGenes.txt', '\t', 1, 1);
 end
 M_rows = 35556;
 
 if ~exist('DEG_map','var')
+	fprintf('Building DEG map...\n');
 	% adjusted p value is column 5
 	% probeset ID is column 9
 	DEG_map = containers.Map('KeyType','char','ValueType','any');

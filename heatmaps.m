@@ -166,9 +166,10 @@ function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separa
 	% adjust data so mean = 0
 	new_mu = mean(reshape(subset_test_data, [size(subset_test_data,1) * size(subset_test_data,2), 1]));
 	subset_test_data = subset_test_data - new_mu;
-	new_min = min(min(subset_test_data))
-	new_max = max(max(subset_test_data))
-	drange = max(ceil(abs(new_min)), ceil(abs(new_max)))
+	new_min = min(min(subset_test_data));
+	new_max = max(max(subset_test_data));
+	drange = max(ceil(abs(new_min)), ceil(abs(new_max)));
+	fprintf('Building heatmap with min=%.4f, max=%.4f, +/- range=%d\n', new_min, new_max, drange);
 	% range of data is should include bound highest and lowest values
 	% symmetric = true means "forces the color scale of the heat map to be symmetric around zero"
 	% standardize = 0 means don't allow MATLAB to standardize on rows or columns as neither would be appropriate in a small matrix
