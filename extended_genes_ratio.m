@@ -1,6 +1,6 @@
 addpath(genpath('/Applications/MATLAB_R2015a.app/toolbox/MIToolbox'));
 
-filename_tag = '_sig_all_transcript';
+filename_tag = '_sig_one_transcript';
 % filename_tag = '_sig_half_transcript';
 % filename_tag = '_sig_all_transcript';
 fprintf('Reading gene lists...\n');

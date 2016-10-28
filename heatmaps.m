@@ -174,7 +174,7 @@ function r = heatmaps(filepath, filename, subset_sz_rows, subset_sz_cols, separa
 	% symmetric = true means "forces the color scale of the heat map to be symmetric around zero"
 	% standardize = 0 means don't allow MATLAB to standardize on rows or columns as neither would be appropriate in a small matrix
 
-	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 0, 'DisplayRange', drange, 'Symmetric', false);
+	cobj = clustergram(subset_test_data, 'Cluster', 1, 'Standardize', 0, 'DisplayRange', drange, 'Symmetric', true);
 	set(cobj, 'ColumnLabels', subset_test_col_labels);
 	set(cobj, 'RowLabels', subset_test_row_labels);
 

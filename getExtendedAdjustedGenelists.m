@@ -6,7 +6,7 @@ function genes_adjnew = getExtendedAdjustedGenelists(DEG_map)
 		genelist = genes_new{i};
 		sublist = {genelist{1}};
 		for j=2:numel(genelist)
-			if probesetDEGsignificant(genelist{j}, true, DEG_map, 3)
+			if probesetDEGsignificant(genelist{j}, true, DEG_map, 1)
 				sublist = [sublist genelist{j}];
 			end
 		end

@@ -11,12 +11,14 @@ function r = probesetDEGsignificant(identifier, is_gene, DEG_map, threshold)
 	ab_col = 1;
 	ae_col = 4;
 	be_col = 7;
-	alpha = 0.01;
+	% alpha_from_B = 0.0005;
+	alpha_from_B = 0.0001;
+	alpha_AE = 0.1;
 	if ~is_gene
 		% if identifier is a gene, check it for significance against the DEG matrix
 		row_of_interest = DEG_map(identifier);
 		r = false;
-		if row_of_interest(ab_col) < alpha && row_of_interest(be_col) < alpha && row_of_interest(ae_col) > alpha
+		if row_of_interest(ab_col) < alpha_from_B && row_of_interest(be_col) < alpha_from_B && row_of_interest(ae_col) > alpha_AE
 			r = true;
 		end
 	else
@@ -32,7 +34,7 @@ function r = probesetDEGsignificant(identifier, is_gene, DEG_map, threshold)
 			% if there is one probeset associated with this gene, its significance in the DEG matrix is the gene's significance
 			row_of_interest = DEG_map(pids(1).probeset);
 			r = false;
-			if row_of_interest(ab_col) < alpha && row_of_interest(be_col) < alpha && row_of_interest(ae_col) > alpha
+			if row_of_interest(ab_col) < alpha_from_B && row_of_interest(be_col) < alpha_from_B && row_of_interest(ae_col) > alpha_AE
 				r = true;
 			end
 		else
@@ -42,7 +44,7 @@ function r = probesetDEGsignificant(identifier, is_gene, DEG_map, threshold)
 			sigs = [];
 			for i=1:numel(pids)
 				row_of_interest = DEG_map(pids(i).probeset);
-				if row_of_interest(ab_col) < alpha && row_of_interest(be_col) < alpha && row_of_interest(ae_col) > alpha
+				if row_of_interest(ab_col) < alpha_from_B && row_of_interest(be_col) < alpha_from_B && row_of_interest(ae_col) > alpha_AE
 					if threshold == 1
 						r = true;
 						break;
