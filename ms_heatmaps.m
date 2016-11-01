@@ -14,23 +14,47 @@ genes_orig = getOrigGenelists();
 genes_new = getExtendedAdjustedGenelists(DEG_map);
 
 grp_no = numel(genes_orig);
+dump_data_only = true;
 existing_sig = 0;
 for i=1:20
 	filename = genes_orig{i}{1};
-	fid = fopen(['output/data_',filename,'.txt'], 'w');
-	fprintf(fid, 'probeset-gene\tA1\tA2\tA3\tE1\tE2\tE3\tB1\tB2\tB3\n');
+	if ~dump_data_only
+		fid = fopen(['output/data_',filename,'.txt'], 'w'); % this is for consumption by the heatmap function
+		fprintf(fid, 'probeset-gene\tA1\tA2\tA3\tE1\tE2\tE3\tB1\tB2\tB3\n');
+	end
+	fid2 = fopen(['output/data_',filename,'_human-readable.txt'], 'w'); % this is Excel-able output
+	fprintf(fid2, 'Probeset\tGene\tSignificant\tExtended\tA1\tA2\tA3\tE1\tE2\tE3\tB1\tB2\tB3\n');
 	for j=2:numel(genes_orig{i})
 		res = gene2probeset(db_obj, genes_orig{i}{j});
 		for k=1:numel(res)
+			fprintf(fid2, '%s\t%s\t', res(k).probeset, genes_orig{i}{j});
 			if probesetDEGsignificant(res(k).probeset, false, DEG_map, 1)
-				fprintf(fid, '%s-%s_SIG', res(k).probeset, genes_orig{i}{j});
+				if ~dump_data_only
+					fprintf(fid, '%s-%s_SIG', res(k).probeset, genes_orig{i}{j});
+				end
+				fprintf(fid2, '1\t0');
 				existing_sig = existing_sig + 1;
 			else
-				fprintf(fid, '%s-%s_', res(k).probeset, genes_orig{i}{j});
-				% fprintf(fid, '%s-%s', res(k).probeset, genes_orig{i}{j});
+				if ~dump_data_only
+					fprintf(fid, '%s-%s_', res(k).probeset, genes_orig{i}{j});
+				end
+				fprintf(fid2, '0\t0');
 			end
 			current_row = mapObj(res(k).probeset);
-			fprintf(fid, '\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n', ...
+			if ~dump_data_only
+				fprintf(fid, '\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n', ...
+					current_row(1), ...
+					current_row(2), ...
+					current_row(3), ...
+					current_row(13), ...
+					current_row(14), ...
+					current_row(15), ...
+					current_row(4), ...
+					current_row(5), ...
+					current_row(6) ...
+				);
+			end
+			fprintf(fid2, '\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n', ...
 				current_row(1), ...
 				current_row(2), ...
 				current_row(3), ...
@@ -46,13 +70,33 @@ for i=1:20
 	for j=2:numel(genes_new{i})
 		res = gene2probeset(db_obj, genes_new{i}{j});
 		for k=1:numel(res)
+			fprintf(fid2, '%s\t%s\t', res(k).probeset, genes_new{i}{j});
 			if probesetDEGsignificant(res(k).probeset, false, DEG_map, 1)
-				fprintf(fid, '%s-%s_NEW_SIG', res(k).probeset, genes_new{i}{j});
+				if ~dump_data_only
+					fprintf(fid, '%s-%s_NEW_SIG', res(k).probeset, genes_new{i}{j});
+				end
+				fprintf(fid2, '1\t1');
 			else
-				fprintf(fid, '%s-%s_NEW', res(k).probeset, genes_new{i}{j});
+				if ~dump_data_only
+					fprintf(fid, '%s-%s_NEW', res(k).probeset, genes_new{i}{j});
+				end
+				fprintf(fid2, '0\t1');
 			end
 			current_row = mapObj(res(k).probeset);
-			fprintf(fid, '\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n', ...
+			if ~dump_data_only
+				fprintf(fid, '\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n', ...
+					current_row(1), ...
+					current_row(2), ...
+					current_row(3), ...
+					current_row(13), ...
+					current_row(14), ...
+					current_row(15), ...
+					current_row(4), ...
+					current_row(5), ...
+					current_row(6) ...
+				);
+			end
+			fprintf(fid2, '\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n', ...
 				current_row(1), ...
 				current_row(2), ...
 				current_row(3), ...
@@ -65,6 +109,9 @@ for i=1:20
 			);
 		end
 	end
-	fclose(fid);
-	heatmaps('output', filename, 0, 0, 0, 10);
+	fclose(fid2);
+	if ~dump_data_only
+		fclose(fid);
+		heatmaps('output', filename, 0, 0, 0, 10);
+	end
 end

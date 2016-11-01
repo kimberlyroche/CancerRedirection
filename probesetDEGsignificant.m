@@ -13,6 +13,8 @@ function r = probesetDEGsignificant(identifier, is_gene, DEG_map, threshold)
 	be_col = 7;
 	% alpha_from_B = 0.0005;
 	alpha_from_B = 0.0001;
+	% alpha_from_B = 0.001;
+	% alpha_from_B = 0.01;
 	alpha_AE = 0.1;
 	if ~is_gene
 		% if identifier is a gene, check it for significance against the DEG matrix

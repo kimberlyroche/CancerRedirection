@@ -1,4 +1,6 @@
-function histogramstack(input_filename, transform)
+% function histogramstack(input_filename, transform)
+	input_filename = 'output/biomarker_core_datapoints.txt';
+	transform = false;
 	% renders histogram stack in 1D (angled); output file [input name]_stack_data.txt and [input name]_stack.png
 
 	addpath(genpath('/Applications/MATLAB_R2015a.app/toolbox/MIToolbox'));
@@ -65,6 +67,7 @@ function histogramstack(input_filename, transform)
 	distances = [];
 	output_start = 0;
 	output_end = num_sets * 50;
+	output_end = 900; % ALTERED
 
 	% compute correlation (etc.) matrix; you can do this one of two ways, a square matrix of dissimilarity measurements
 	% with diagonals as exactly 0:
@@ -84,7 +87,12 @@ function histogramstack(input_filename, transform)
 			fprintf('Getting correlation for %d x %d\n', i, j);
 			c = 0;
 			% mutual information
-			c = 1 / ( mi(M(:,i), M(:,j)) / max_h );
+			mi_val = mi(M(:,i), M(:,j));
+			if mi_val > 0
+				c = 1 / ( mi_val / max_h );
+			else
+				c = max_h;
+			end
 			rho = [rho c];
 			j = j + 1;
 		end
@@ -153,6 +161,7 @@ function histogramstack(input_filename, transform)
 	x_offset = 0;
 	i = 1;
 	ecolor_scale = 0.35;
+	% for 18-ers
 	colors = zeros(18,3);
 	colors(1,:) = [150, 165, 55];
 	colors(2,:) = colors(1,:);
@@ -174,6 +183,19 @@ function histogramstack(input_filename, transform)
 	colors(18,:) = colors(16,:);
 	colors = colors * 1.5;
 	colors = colors / 255;
+	% for AEB matrices
+	colors2 = zeros(9,3);
+	colors2(1,:) = [150, 165, 55];
+	colors2(2,:) = colors2(1,:);
+	colors2(3,:) = colors2(1,:);
+	colors2(4,:) = [48, 60, 116];
+	colors2(5,:) = colors2(4,:);
+	colors2(6,:) = colors2(4,:);
+	colors2(7,:) = [170, 77, 57];
+	colors2(8,:) = colors2(7,:);
+	colors2(9,:) = colors2(7,:);
+	colors2 = colors2 * 1.5;
+	colors2 = colors2 / 255;
 	i = cols;
 	random_colormap = hsv(num_sets);
 	while i > 0
@@ -182,23 +204,26 @@ function histogramstack(input_filename, transform)
 		fprintf('%d\t%f\n', use_index, x_offset);
 		[N,edges] = histcounts(M(:,use_index),bins);
 		j = 1;
-		if num_sets == 18 && num_rows == 35556
+		if num_sets == 18
 			color = colors(use_index,:);
+		elseif num_sets == 9
+			color = colors2(use_index,:);
 		else
 			color = random_colormap(randi(num_sets), :);
 		end
 		while j <= bins
 			if j > 1 || N(j) < N(j+1)*2
+				height = N(j) * 75; % ALTERED
 				% we can get away with only drawing three faces of the box given the angle we're viewing it from
 				X = [x_offset x_offset+(sq_w*1); x_offset x_offset+(sq_w*1)];
 				Y = [(1-j)*sq_w (1-j)*sq_w; -j*sq_w -j*sq_w];
-				Z = [N(j) N(j); N(j) N(j)];
+				Z = [height height; height height];
 				X2 = [x_offset x_offset; x_offset x_offset];
 				Y2 = [-j*sq_w (1-j)*sq_w; -j*sq_w (1-j)*sq_w];
-				Z2 = [0 0; N(j) N(j)];
+				Z2 = [0 0; height height];
 				X3 = [x_offset x_offset+(sq_w*1); x_offset x_offset+(sq_w*1)];
 				Y3 = [-j*sq_w -j*sq_w; -j*sq_w -j*sq_w];
-				Z3 = [0 0; N(j) N(j)];
+				Z3 = [0 0; height height];
 				surf(X,Y,Z,'FaceColor',color,'EdgeColor',color*ecolor_scale);
 				hold on
 				surf(X2,Y2,Z2,'FaceColor',color,'EdgeColor',color*ecolor_scale);
@@ -225,7 +250,7 @@ function histogramstack(input_filename, transform)
 	fig.PaperUnits = 'inches';
 	fig.PaperPosition = [0 0 50 25];
 	fig.PaperPositionMode = 'manual';
-	print(fullfile(pathstr,[name,'_stack']),'-dpng','-r0');
+	print(fullfile(pathstr,[name,'_stack']),'-dpng','-r300');
 
 	fclose(fileID);
-end
+% end

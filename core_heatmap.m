@@ -9,7 +9,7 @@ db_obj = DB(database_path, sqlite3_path);
 
 readDEG();
 
-fid = fopen('output/data_output.txt', 'w');
+fid = fopen('output/data_coreheatmap.txt', 'w');
 fprintf(fid, 'id\tA1\tA2\tA3\tE1\tE2\tE3\tB1\tB2\tB3\n');
 for j=1:numel(genelist_significant)
 	x = genelist_significant{j};
@@ -34,4 +34,4 @@ for j=1:numel(genelist_significant)
 	end
 end
 fclose(fid);
-heatmaps('output', 'output', 0, 0, 0, 30);
+heatmaps('output', 'coreheatmap', 0, 0, 0, 30);
